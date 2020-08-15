@@ -1,11 +1,15 @@
-const mount = require('mount')
-const spawn = require('spawn')
-const tower = require('tower')
-const stateScanner = require('stats')
+const mount = require('src/mount')
+const spawn = require('src/spawn')
+const tower = require('src/tower')
+const stateScanner = require('src/stats')
+const configCreeps = require('src/config/creep')
+const sync = require('sync')
 
 module.exports.loop = function () {
 
     stateScanner()
+    mount()
+    sync()
 
     for (let roomName in Game.spawns){
         let room = Game.spawns[roomName].room
@@ -17,16 +21,25 @@ module.exports.loop = function () {
     }
 
     tower()
+    creepsWork()
 
-    mount()
+    spawn()
+}
+
+function creepsWork() {
     for (let name in Memory.creeps) {
-        let creep = Game.creeps[name];
+        let creep = Game.creeps[name]
         if (!creep) {
+            let creepMemory = Memory.creeps[name]
+            let role = creepMemory.role
+            let configCreep = configCreeps[role]
+            let room = Game.rooms[configCreep.roomName]
+            if (!configCreep.checked){
+                room.pushRoomSpawnTask(role)
+            }
             delete Memory.creeps[name]
             continue
         }
         creep.work()
     }
-
-    spawn()
 }

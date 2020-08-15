@@ -15,7 +15,7 @@ module.exports = function(grunt) {
                 },
                 email: 'saki',
                 password: 'Kaifa@123',
-                branch: 'default',
+                branch: 'dev',
                 ptr: false
             },
             dist: {
@@ -49,6 +49,7 @@ module.exports = function(grunt) {
                 replacements:[{
                     from: /require.*/g,
                     to: function (requireString) {
+                        requireString = requireString.replace('src/','')
                         requireString = requireString.replace(/\//g,'_')
                         return requireString;
                     }

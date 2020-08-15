@@ -1,4 +1,4 @@
-const configCreeps = require('config.creep')
+const configCreeps = require('src/config/creep')
 
 module.exports = () => {
 
@@ -6,28 +6,20 @@ module.exports = () => {
 
         let configCreep = configCreeps[role]
 
-        let count = _.filter(Memory.creeps, ((value, key) => {
-            return value.role === role
-        })).length
+        let room = Game.rooms[configCreep.roomName]
 
-        let number = 0
-        if (configCreep.number !== undefined){
-            number = configCreep.number
-        }else {
-            number = Game.spawns[configCreep.roomName].memory[role]
-        }
+        let roleDetail = room.memory.roleDetail
+        let createNumber = roleDetail.allNumber - (roleDetail.liveNumber + roleDetail.waitNumber)
 
-        if (number === undefined){
-            number = 0
-        }
-
-
-        if (number > count) {
-            let creepNo = 0
-            while (Game.spawns[configCreep.roomName].spawnCreep(configCreep.structure, `${role}_${creepNo}`, {memory: {role: role}}) === -3){
-                creepNo = creepNo + 1
+        if (createNumber > 0){
+            for (let count = 0;count < createNumber;count++){
+                room.pushRoomSpawnTask(role,true)
             }
-            return
         }
+    }
+
+    for (let roomName in Game.rooms) {
+        let room = Game.rooms[roomName]
+        room.createCreep()
     }
 }

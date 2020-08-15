@@ -1,4 +1,4 @@
-const data = require('src/config.data')
+const data = require('src/config/data')
 module.exports = () => ({
     status1: creep => {
         let container

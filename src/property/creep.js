@@ -1,12 +1,8 @@
-const configCreeps = require('src/config.creep')
-const data = require('src/config.data')
+const configCreeps = require('src/config/creep')
+const data = require('src/config/data')
 
 module.exports = () => {
-    _.assign(Creep.prototype, creepExtension)
-}
-
-const creepExtension = {
-    work() {
+    Creep.prototype.work = () => {
         let configCreep = configCreeps[this.memory.role]
         if (!configCreep) {
             console.log(`${this.name}:${this.memory.role}:not has this role!`)
@@ -24,16 +20,20 @@ const creepExtension = {
         }
         let workMethod = process.switch(this)
         process[workMethod](this)
-    },
+    }
 
-    break() {
-        let breakPointList = this.room.find(FIND_FLAGS,{filter:object => {return object.name === 'break'}})
+    Creep.prototype.break = () => {
+        let breakPointList = this.room.find(FIND_FLAGS, {
+            filter: object => {
+                return object.name === 'break'
+            }
+        })
         if (breakPointList) {
             this.moveTo(breakPointList[0])
         }
-    },
+    }
 
-    getSourceHasEnergy() {
+    Creep.prototype.getSourceHasEnergy = () => {
         let energySource
         let energyStoreList = data[this.room.name].energyStoreList
         if (this.memory.energySourceId) {
@@ -55,9 +55,9 @@ const creepExtension = {
             this.memory.energySourceId = energySource.id
         }
         return energySource
-    },
+    }
 
-    updateStatus() {
+    Creep.prototype.updateStatus = () => {
         //自身能量为0时，working状态切换为false
         let beforeWorking = this.memory.working
         if (this.store[RESOURCE_ENERGY] <= 0 && this.memory.working) {
@@ -65,7 +65,7 @@ const creepExtension = {
         } else if (this.store[RESOURCE_ENERGY] >= this.store.getCapacity() && !this.memory.working) {
             this.memory.working = true
         }
-        if (beforeWorking !==  this.memory.working){
+        if (beforeWorking !== this.memory.working) {
             delete this.memory.energySourceId
         }
     }
