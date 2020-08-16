@@ -35,6 +35,7 @@ function creepsWork() {
             let configCreep = configCreeps[role]
             let room = Game.rooms[configCreep.roomName]
             if (!configCreep.checked){
+                let roleDetail = room.memory.roleDetails[role]
                 room.pushRoomSpawnTask(role)
             }
             delete Memory.creeps[name]

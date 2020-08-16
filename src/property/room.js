@@ -2,13 +2,13 @@ const configCreeps = require('src/config/creep')
 
 module.exports = () => {
     Room.prototype.pushRoomSpawnTask = roomExtension.pushRoomSpawnTask
-    Room.prototype.createCreep = roomExtension.createCreep()
+    Room.prototype.createCreep = roomExtension.createCreep
 }
 
 const roomExtension = {
-    pushRoomSpawnTask : (role,newCreeps=false)=>{
+    pushRoomSpawnTask(role,newCreeps=false){
         let taskList = this.memory.taskList
-        let roleDetail = this.memory[role].roleDetail
+        let roleDetail = this.memory.roleDetails[role]
         let number = roleDetail.liveNumber + roleDetail.waitNumber
         // 如果已存在的creeps与wait的数量大于本来应该存在的数量则不生成任务
         if (number > roleDetail.allNumber) {
@@ -32,7 +32,7 @@ const roomExtension = {
         }
         let taskList = this.memory.taskList
 
-        if (!taskList){
+        if (!taskList || taskList.length === 0){
             return
         }
 
@@ -47,12 +47,17 @@ const roomExtension = {
 
         let configCreep = configCreeps[role]
 
-        let freeSpawn = this.find(FIND_MY_SPAWNS,{
+        let freeSpawnList = this.find(FIND_MY_SPAWNS,{
             filter: spawn =>{
                 return !spawn.spawning
             }
         })
 
+        if (freeSpawnList.length === 0){
+            return;
+        }
+
+        let freeSpawn = freeSpawnList[0]
         let creepNo = 0
         let result = -3
         while (result === -3) {
@@ -64,13 +69,13 @@ const roomExtension = {
                 role: role,
                 checked: false
             }
-            freeSpawn.spawnCreep(configCreep.structure, `${role}_${creepNo}`, {memory})
-            let roleDetail = this.memory[role].roleDetail
+            let index = taskList.indexOf(role)
+
+            taskList.splice(index,1)
+            freeSpawn.spawnCreep(configCreep.structure, `${role}_${creepNo}`, {memory:memory})
+            let roleDetail = this.memory.roleDetails[role]
             roleDetail.liveNumber++
             roleDetail.waitNumber--
-
-            let index = taskList.indexOf(role)
-            taskList.splice(index,1)
         }
 
 

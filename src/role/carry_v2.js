@@ -42,7 +42,7 @@ module.exports = () => ({
             source = creep.pos.findClosestByPath(FIND_STRUCTURES, {
                 filter: object => {
                     let store = object.store
-                    if (energyStoreList.indexOf(object.id) !== -1 && store.getFreeCapacity(RESOURCE_ENERGY) > store.getCapacity()/4*1) {
+                    if (energyStoreList.indexOf(object.id) !== -1 && store.getFreeCapacity(RESOURCE_ENERGY) > store.getCapacity()/10*1) {
                         return true
                     }
                 }

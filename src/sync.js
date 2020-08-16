@@ -2,38 +2,52 @@ const configCreeps = require('src/config/creep')
 
 module.exports = ()=>{
 
-    for (let role in configCreeps) {
-        let configCreep = configCreeps[role]
-        let room = Game.rooms[configCreep.roomName]
-        let roleDetail = room.memory[role].roleDetail
-        let allNumber
-        if (roleDetail) {
-            allNumber = roleDetail.allNumber
+    if (!global.initSync || Game.time % 60 ===0) {
+        for (let roomName in Game.rooms){
+            let room = Game.rooms[roomName]
+            if (!room.memory.roleDetails){
+                room.memory.roleDetails = {}
+            }
         }
-        if (allNumber === undefined){
-            allNumber = configCreep.number
-        }
-        room.memory[role].roleDetail = initRoleDetail(allNumber)
 
+        for (let role in configCreeps) {
+            let configCreep = configCreeps[role]
+            let room = Game.rooms[configCreep.roomName]
+            let roleDetail = room.memory.roleDetails[role]
+            let allNumber = configCreep.number
+            if (allNumber === undefined) {
+                allNumber = roleDetail.allNumber
+            }
+            room.memory.roleDetails[role] = initRoleDetail(allNumber)
+
+            let taskList = room.memory.taskList
+            if (!taskList){
+                taskList = []
+                room.memory.taskList = taskList
+            }
+            room.memory.roleDetails[role].waitNumber = taskList.filter(taskRoleName => {
+                return role === taskRoleName
+            }).length
+        }
+
+
+        for (let creepName in Memory.creeps) {
+            let creepMemory = Memory.creeps[creepName]
+            let creepConfig = configCreeps[creepMemory.role]
+            let room = Game.rooms[creepConfig.roomName]
+            let roleDetail = room.memory.roleDetails[creepMemory.role]
+
+            if (!creepMemory.checked){
+                creepMemory.checked = false
+                roleDetail.liveNumber++
+            }
+        }
+
+        global.initSync = true
     }
 
-    for (let creepName in Game.creeps) {
-        let creepMemory = Memory.creeps[creepName]
-        let room = Game.rooms[creepMemory.roomName]
-        let roleDetail = room.memory[creepMemory.role].roleDetail
 
-        if (!creepMemory.checked){
-            creepMemory.checked = false
-            roleDetail.liveNumber = roleDetail + 1
-        }
 
-        let taskList = room.taskList
-        if (!taskList){
-            taskList = []
-            room.taskList = taskList
-        }
-        roleDetail.waitNumber = taskList.length
-    }
 }
 
 function initRoleDetail(allNumber) {

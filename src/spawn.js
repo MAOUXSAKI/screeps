@@ -8,7 +8,7 @@ module.exports = () => {
 
         let room = Game.rooms[configCreep.roomName]
 
-        let roleDetail = room.memory.roleDetail
+        let roleDetail = room.memory.roleDetails[role]
         let createNumber = roleDetail.allNumber - (roleDetail.liveNumber + roleDetail.waitNumber)
 
         if (createNumber > 0){

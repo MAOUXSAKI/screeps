@@ -2,7 +2,7 @@ const configCreeps = require('src/config/creep')
 const data = require('src/config/data')
 
 module.exports = () => {
-    Creep.prototype.work = () => {
+    Creep.prototype.work = function () {
         let configCreep = configCreeps[this.memory.role]
         if (!configCreep) {
             console.log(`${this.name}:${this.memory.role}:not has this role!`)
@@ -22,7 +22,7 @@ module.exports = () => {
         process[workMethod](this)
     }
 
-    Creep.prototype.break = () => {
+    Creep.prototype.break = function (){
         let breakPointList = this.room.find(FIND_FLAGS, {
             filter: object => {
                 return object.name === 'break'
@@ -33,7 +33,7 @@ module.exports = () => {
         }
     }
 
-    Creep.prototype.getSourceHasEnergy = () => {
+    Creep.prototype.getSourceHasEnergy = function () {
         let energySource
         let energyStoreList = data[this.room.name].energyStoreList
         if (this.memory.energySourceId) {
@@ -57,7 +57,7 @@ module.exports = () => {
         return energySource
     }
 
-    Creep.prototype.updateStatus = () => {
+    Creep.prototype.updateStatus = function () {
         //自身能量为0时，working状态切换为false
         let beforeWorking = this.memory.working
         if (this.store[RESOURCE_ENERGY] <= 0 && this.memory.working) {
